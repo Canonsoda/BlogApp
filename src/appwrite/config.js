@@ -1,6 +1,6 @@
 import conf from "../conf/conf.js";
 import { Client, ID,Databases,Storage,Query ,Permission} from "appwrite";
-
+import { Role } from "appwrite";
 export class Service{
     client = new Client();
     databases;
@@ -92,23 +92,23 @@ export class Service{
     }
 
     //file upload and delete
-    async uploadFile(file){
-        try {
-            return await this.bucket.createFile(
-                conf.appwriteBucketId,
-                ID.unique(),
-                file,
-                [
-                    Permission.read(Role.users())
-                ]
-            )
-            
-        } catch (error) {
-            console.error("Error uploading file:", error);
-            throw error;
-            
-        }
+    async uploadFile(file) {
+    try {
+        const uploadedFile = await this.bucket.createFile(
+            conf.appwriteBucketId,
+            ID.unique(),
+            file,
+            [
+                Permission.read(Role.users())
+            ]
+        );
+        return uploadedFile;
+    } catch (error) {
+        console.error("Error uploading file:", error);
+        throw error;
     }
+}
+
     async deleteFile(fileId){
         try {
             return await this.bucket.deleteFile(
@@ -122,12 +122,10 @@ export class Service{
             throw error;
         }
     }
-    getFilePreview(fileId){
-        return this.bucket.getFilePreview(
-            conf.appwriteBucketId,
-            fileId
-        )
-    }
+    getFilePreview(fileId) {
+  return `https://fra.cloud.appwrite.io/v1/storage/buckets/${conf.appwriteBucketId}/files/${fileId}/view?project=${this.client.config.project}`;
+}
+
 }
 const service = new Service();
 export default service;
